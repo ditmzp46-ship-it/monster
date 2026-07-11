@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>오답노트 던전</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand">⚔️ 오답노트 던전</div>
+    <div class="player-hud">
+      <span class="streak">🔥 <b id="hud-streak">0</b>일</span>
+      <span class="level">Lv.<b id="hud-level">1</b></span>
+      <span class="gold">🪙 <b id="hud-gold">0</b></span>
+    </div>
+  </header>
+  <div class="exp-bar"><div id="hud-exp-fill" class="exp-fill"></div></div>
+
+  <main id="views">
+
+    <section id="view-home" class="view active">
+      <h2>오늘의 던전</h2>
+      <div id="home-due-summary" class="due-grid"></div>
+
+      <h3>덱 현황</h3>
+      <div id="home-deck-stats" class="deck-grid"></div>
+
+      <div class="empty-hint" id="home-empty-hint" hidden>
+        아직 등록된 오답이 없어요. <b>등록</b> 탭에서 첫 오답을 몬스터로 소환해보세요!
+      </div>
+
+      <h3>설정</h3>
+      <div class="setting-row">
+        <span>⏱️ 단어 배틀 타이머 사용</span>
+        <label class="switch">
+          <input type="checkbox" id="setting-timer-toggle" checked />
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+      <p class="hint">끄면 단어 배틀도 지문처럼 시간 제한 없이 여유롭게 풀 수 있어요. (정답 콤보 보너스는 그대로 유지)</p>
+    </section>
+
+    <section id="view-register" class="view">
+      <h2>오답 등록</h2>
+      <form id="register-form">
+        <div class="field-row">
+          <label><input type="radio" name="type" value="word" checked /> 단어형</label>
+          <label><input type="radio" name="type" value="passage" /> 지문형</label>
+        </div>
+
+        <div id="subcategory-row" class="field-row">
+          <label><input type="radio" name="subCategory" value="english" checked /> 영어단어</label>
+          <label><input type="radio" name="subCategory" value="term" /> 용어</label>
+        </div>
+
+        <div class="ocr-box">
+          <div class="ocr-row">
+            <label class="btn-ghost ocr-upload-btn" for="ocr-file">📷 사진으로 텍스트 추출 (OCR)</label>
+            <input type="file" id="ocr-file" accept="image/*" capture="environment" hidden />
+            <button type="button" id="ocr-clear" class="btn-ghost" hidden>✕ 사진 지우기</button>
+          </div>
+          <img id="ocr-preview" class="ocr-preview" hidden alt="스캔한 사진 미리보기" />
+          <div id="ocr-progress-wrap" class="ocr-progress-wrap" hidden>
+            <div class="timer-bar"><div class="timer-fill" id="ocr-progress-fill" style="width:0%"></div></div>
+            <div id="ocr-status" class="ocr-status">준비 중...</div>
+          </div>
+        </div>
+
+        <label class="field">
+          <span id="question-label">단어 / 문제</span>
+          <textarea id="f-question" required placeholder="예: apple  /  또는 사진으로 스캔해보세요"></textarea>
+        </label>
+
+        <label class="field">
+          <span>정답 / 뜻·설명</span>
+          <textarea id="f-answer" required placeholder="예: 사과"></textarea>
+        </label>
+
+        <label class="field">
+          <span>객관식 보기 (선택, 쉼표로 구분 — 오답 보기만 입력)</span>
+          <input id="f-choices" type="text" placeholder="예: 배, 바나나, 포도" />
+        </label>
+
+        <label class="field">
+          <span>헷갈린 포인트 메모 (선택)</span>
+          <input id="f-note" type="text" placeholder="예: apply랑 헷갈림" />
+        </label>
+
+        <label class="field">
+          <span>태그 (선택, 쉼표로 구분 — 과목/던전 분류에 사용)</span>
+          <input id="f-tags" type="text" placeholder="예: 정보처리기사, 3과목" />
+        </label>
+
+        <button type="submit" class="btn-primary">몬스터 소환 (등록)</button>
+      </form>
+      <div id="register-toast" class="toast" hidden></div>
+    </section>
+
+    <section id="view-flashcard" class="view">
+      <h2>플래시카드 암기</h2>
+      <div id="flashcard-deck-select" class="deck-select">
+        <button class="deck-btn" data-deck="english">영어단어 덱</button>
+        <button class="deck-btn" data-deck="term">용어 덱</button>
+      </div>
+      <div id="flashcard-play" class="play-area" hidden>
+        <div class="play-topbar">
+          <button id="flashcard-exit" class="btn-ghost">← 목록</button>
+          <span id="flashcard-progress"></span>
+        </div>
+        <div id="flashcard-card" class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front"></div>
+            <div class="flip-card-back"></div>
+          </div>
+        </div>
+        <p class="hint">카드를 탭하면 뒤집혀요</p>
+        <div class="grade-row" id="flashcard-grade-row" hidden>
+          <button class="grade-btn know" data-grade="know">✅ 안다</button>
+          <button class="grade-btn unsure" data-grade="unsure">🤔 헷갈림</button>
+          <button class="grade-btn unknown" data-grade="unknown">❌ 모른다</button>
+        </div>
+        <div id="flashcard-done" class="empty-hint" hidden>오늘 복습할 카드를 모두 확인했어요!</div>
+      </div>
+    </section>
+
+    <section id="view-battle" class="view">
+      <h2>카드 배틀</h2>
+      <div id="battle-dungeon-select" class="deck-select"></div>
+      <div id="battle-play" class="play-area" hidden></div>
+    </section>
+
+    <section id="view-dex" class="view">
+      <h2>몬스터 도감</h2>
+      <div id="dex-stats" class="due-grid"></div>
+      <div id="dex-list" class="dex-list"></div>
+    </section>
+
+  </main>
+
+  <nav class="bottombar">
+    <button class="nav-btn active" data-view="home">🏠<span>홈</span></button>
+    <button class="nav-btn" data-view="register">📝<span>등록</span></button>
+    <button class="nav-btn" data-view="flashcard">🗂️<span>암기</span></button>
+    <button class="nav-btn" data-view="battle">⚔️<span>배틀</span></button>
+    <button class="nav-btn" data-view="dex">📖<span>도감</span></button>
+  </nav>
+
+  <div id="toast-layer"></div>
+</div>
+
+<script src="js/app.js" defer></script>
+</body>
+</html>
